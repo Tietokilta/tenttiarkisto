@@ -12,6 +12,11 @@ class ExtFileField(models.FileField):
 
     super(ExtFileField, self).__init__(*args, **kwargs)
 
+  def deconstruct(self):
+    name, path, args, kwargs = super().deconstruct()
+    kwargs['ext_whitelist'] = self.ext_whitelist
+    return name, path, args, kwargs
+
   def clean(self, *args, **kwargs):
     data = super(ExtFileField, self).clean(*args, **kwargs)
     filename = data.name

@@ -1,42 +1,31 @@
-from django.conf.urls import patterns, include, url
-from django.conf import settings
-
-# Uncomment the next two lines to enable the admin:
 from django.contrib import admin
-admin.autodiscover()
+from django.urls import path, include
+from django.contrib.auth import views as auth_views
+from exams import views
 
-urlpatterns = patterns('',
-    # Examples:
-    url(r'^$', 'exams.views.frontpage'),
-    # url(r'^tenttiarkisto/', include('tenttiarkisto.foo.urls')),
-    url(r'^courses/$', 'exams.views.courselist'),
-    url(r'^courses/add/$', 'exams.views.addcourse'),
-    url(r'^courses/(?P<course_id>\d+)/(.+)?$', 'exams.views.courseview'),
-    url(r'^exams/(?P<exam_id>\d+)/(.+)?/delete$', 'exams.views.delete_exam'),
-    url(r'^exams/(?P<exam_id>\d+)/(.+)?/edit$', 'exams.views.edit_exam'),
-    url(r'^exams/(?P<exam_id>\d+)/(.+)?$', 'exams.views.examview'),
-    url(r'^exams/add/$', 'exams.views.addexam'),
-    url(r'^examfile/(?P<examfile_id>\d+)/delete$', 'exams.views.delete_examfile'),
+urlpatterns = [
+    path('', views.frontpage),
+    path('courses/', views.courselist),
+    path('courses/add/', views.addcourse),
+    path('courses/<int:course_id>/', views.courseview),
+    path('courses/<int:course_id>/<path:_ignore>/', views.courseview),
+    path('exams/<int:exam_id>/', views.examview),
+    path('exams/<int:exam_id>/<path:_ignore>/delete', views.delete_exam),
+    path('exams/<int:exam_id>/<path:_ignore>/edit', views.edit_exam),
+    path('exams/<int:exam_id>/<path:_ignore>/', views.examview),
+    path('exams/add/', views.addexam),
+    path('examfile/<int:examfile_id>/delete', views.delete_examfile),
 
     # account stuff
-    (r'^login/$', 'django.contrib.auth.views.login', {'template_name': 'account/login.html'}),
-    (r'^logout/$', 'django.contrib.auth.views.logout', {'next_page': '/'}),
-    url(r'^register/$', 'exams.views.register'),
-    url(r'^account/$', 'exams.views.modifyaccount'),
-    url(r'^ownexams/$', 'exams.views.accountexams'),
+    path('login/', auth_views.LoginView.as_view(template_name='account/login.html')),
+    path('logout/', auth_views.LogoutView.as_view(next_page='/')),
+    path('register/', views.register),
+    path('account/', views.modifyaccount),
+    path('ownexams/', views.accountexams),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     #url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     # Uncomment the next line to enable the admin:
-    url(r'^admin/', include(admin.site.urls)),
-)
-
-# serve uploaded files in dev
-if settings.DEBUG:
-    urlpatterns += patterns('',
-        url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {
-            'document_root': settings.MEDIA_ROOT,
-        }),
-   )
-
+    path('admin/', admin.site.urls),
+]

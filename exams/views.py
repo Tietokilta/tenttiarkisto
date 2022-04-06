@@ -1,9 +1,8 @@
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.db.models import Count, Q
-from django.template import RequestContext
 from exams.models import Course, Exam, ExamFile, Maintainer
 from django.forms import EmailField, ModelForm, Form, PasswordInput, CharField
 from django.contrib.auth.forms import UserCreationForm
@@ -12,20 +11,21 @@ from datetime import datetime
 
 def frontpage(request):
   maintainers = Maintainer.objects.order_by('group').all()
-  return render_to_response('index.html', {'maintainers': maintainers}, context_instance=RequestContext(request))
+  return render(request, 'index.html', {'maintainers': maintainers})
 
 def courselist(request):
   q = request.GET.get('q', '').strip()
   all_courses = Course.objects.annotate(exam_count=Count('exam')).order_by('code').filter(Q(name__icontains=q)|Q(code__icontains=q)).all()
-  return render_to_response('course/courselist.html', {'courses': all_courses}, context_instance=RequestContext(request))
+  return render(request, 'course/courselist.html', {'courses': all_courses})
 
-def courseview(request, course_id):
+def courseview(request, course_id, _ignore=None):
   course = get_object_or_404(Course, pk=course_id)
-  return render_to_response('course/courseview.html', {'course': course, 'exams': course.exam_set.order_by('-exam_date').all()}, context_instance=RequestContext(request))
+  return render(request, 'course/courseview.html', {'course': course, 'exams': course.exam_set.order_by('-exam_date').all()})
 
 class CourseForm(ModelForm):
   class Meta:
     model = Course
+    fields = ['code', 'name']
 
 def addcourse(request):
   saved = False
@@ -38,7 +38,7 @@ def addcourse(request):
       form = CourseForm()
   else:
     form = CourseForm()
-  return render_to_response('course/addcourse.html', {'form': form, 'saved': saved, 'course': course}, context_instance=RequestContext(request))
+  return render(request, 'course/addcourse.html', {'form': form, 'saved': saved, 'course': course})
 
 # exam & add exam views
 
@@ -55,7 +55,7 @@ class ExamFileForm(ModelForm):
 def allowed_to_edit_exam(exam, user):
   return exam.submitter == user
 
-def examview(request, exam_id):
+def examview(request, exam_id, _ignore=None):
   exam = get_object_or_404(Exam, pk=exam_id)
   fileform = ExamFileForm()
   added = False
@@ -67,9 +67,9 @@ def examview(request, exam_id):
       examfile.save()
       fileform = ExamFileForm()
       added = True
-  return render_to_response('exam/examview.html', {'exam': exam, 'files': exam.examfile_set.all(), 'fileform': fileform, 'added': added, 'allowed_to_edit_exam': allowed_to_edit_exam(exam, request.user)}, context_instance=RequestContext(request))
+  return render(request, 'exam/examview.html', {'exam': exam, 'files': exam.examfile_set.all(), 'fileform': fileform, 'added': added, 'allowed_to_edit_exam': allowed_to_edit_exam(exam, request.user)})
 
-def delete_exam(request, exam_id):
+def delete_exam(request, exam_id, _ignore=None):
   if request.method == 'POST':
     exam = get_object_or_404(Exam, pk=exam_id)
     if allowed_to_edit_exam(exam, request.user):
@@ -91,7 +91,7 @@ def delete_examfile(request, examfile_id):
   else:
     return HttpResponseNotAllowed("405 Method not allowed")
 
-def edit_exam(request, exam_id):
+def edit_exam(request, exam_id, _ignore=None):
   exam = get_object_or_404(Exam, pk=exam_id)
   if not allowed_to_edit_exam(exam, request.user):
     return HttpResponseForbidden("403 Forbidden")
@@ -101,7 +101,7 @@ def edit_exam(request, exam_id):
     if form.is_valid():
       form.save()
       return HttpResponseRedirect(exam.get_absolute_url())
-  return render_to_response('exam/editexam.html', {'form': form}, context_instance=RequestContext(request))
+  return render(request, 'exam/editexam.html', {'form': form})
 
 def addexam(request):
   added = False
@@ -113,7 +113,7 @@ def addexam(request):
     fileform = ExamFileForm(request.POST, request.FILES)
     if form.is_valid() and fileform.is_valid():
       exam = form.save(commit = False)
-      if request.user.is_authenticated():
+      if request.user.is_authenticated:
         exam.submitter = request.user
       exam.save()
       examfile = fileform.save(commit = False)
@@ -124,7 +124,7 @@ def addexam(request):
       added = True
   # sort the courses properly
   form.fields["course"].queryset = Course.objects.order_by('code').all()
-  return render_to_response('exam/addexam.html', {'form': form, 'added': added, 'fileform': fileform, 'new_exam': exam}, context_instance=RequestContext(request))
+  return render(request, 'exam/addexam.html', {'form': form, 'added': added, 'fileform': fileform, 'new_exam': exam})
 
 
 # user registration view
@@ -143,7 +143,7 @@ class UserCreationEmailForm(UserCreationForm):
     return user
 
 def register(request):
-  if request.user.is_authenticated():
+  if request.user.is_authenticated:
     return HttpResponseRedirect('/')
 
   created = False
@@ -157,7 +157,7 @@ def register(request):
       login(request, user)
   else:
     form = UserCreationEmailForm()
-  return render_to_response('account/register.html', {'form': form, 'created': created}, context_instance=RequestContext(request))
+  return render(request, 'account/register.html', {'form': form, 'created': created})
 
 # view for changing account details
 
@@ -196,10 +196,10 @@ def modifyaccount(request):
         auth_user.save()
       else:
         form._errors['current_password'] = form.error_class(["The password was wrong!"])
-  return render_to_response('account/modifyaccount.html', {"form": form, 'saved': saved}, context_instance=RequestContext(request))
+  return render(request, 'account/modifyaccount.html', {"form": form, 'saved': saved})
 
 # view for exams added by current user
 @login_required
 def accountexams(request):
   exams = Exam.objects.filter(submitter = request.user).order_by("-date_added")
-  return render_to_response('account/ownexams.html', {"exams": exams}, context_instance=RequestContext(request))
+  return render(request, 'account/ownexams.html', {"exams": exams})
