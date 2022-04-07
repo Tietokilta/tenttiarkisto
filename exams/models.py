@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.template.defaultfilters import slugify
 from exams.utils import ExtFileField
 from django.conf import settings
@@ -37,6 +39,10 @@ def exam_file_name(instance, filename):
 class ExamFile(models.Model):
   exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
   exam_file = ExtFileField(upload_to = exam_file_name, ext_whitelist = settings.TENTTIARKISTO_FILE_EXTENSIONS)
+
+@receiver(post_delete, sender=ExamFile)
+def post_delete_file(instance, **kwargs):
+  instance.exam_file.delete(save=False)
 
 # maintainers for frontpage
 
