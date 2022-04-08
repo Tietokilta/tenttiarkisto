@@ -1,5 +1,9 @@
 *~
 *.swp
 *.pyc
-media/*
+__pycache__/
+/media
+/common_static
+/venv
 tenttiarkisto.db
+.env

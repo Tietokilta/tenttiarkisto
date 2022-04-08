@@ -42,14 +42,14 @@
 <h2>Exam files</h2>
 <table class="table table-bordered table-striped">
   {% for file in files %}
-  <tr><td><a href="{{ file.exam_file.url }}">{{ file.exam_file.url }}</a>
+  <tr><td><a href="{{ file.exam_file.url }}">{{ file.exam_file.name }}</a>
     {% if allowed_to_edit_exam %}
       <form method="post" action="/examfile/{{ file.id }}/delete" style="margin: 0; display: inline-block;">
         {% csrf_token %}
         <input class="btn btn-danger btn-small icon-trash confirm-delete" type="submit" value="Delete file" />
       </form>
     {% endif %}
-  </tr></td>
+  </td></tr>
   {% endfor %}
 </table>
 
