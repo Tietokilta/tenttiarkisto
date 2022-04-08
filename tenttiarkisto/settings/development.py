@@ -25,6 +25,21 @@ MEDIA_URL = '/media/'
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'gkkqajw-l$iu85+p*4+bvsfhy)(!zxmh95g7h+-0k842zw!moe'
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+}
+
 # Check that we don't accidentally run in development mode in a production environment
 # https://docs.microsoft.com/en-us/azure/app-service/reference-app-settings
 if os.environ.get('WEBSITE_SITE_NAME'):

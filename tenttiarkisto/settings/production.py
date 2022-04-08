@@ -31,3 +31,23 @@ AZURE_CONTAINER = get_env_var('EXAM_CONTAINER')
 SECRET_KEY = get_env_var('SECRET_KEY')
 
 ALLOWED_HOSTS = get_env_var('ALLOWED_HOSTS').split(',')
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "ERROR",
+    },
+    "loggers": {
+        "django": {
+            "level": "ERROR",
+        },
+    },
+}
