@@ -32,6 +32,8 @@ SECRET_KEY = get_env_var('SECRET_KEY')
 
 ALLOWED_HOSTS = get_env_var('ALLOWED_HOSTS').split(',')
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -48,6 +50,11 @@ LOGGING = {
     "loggers": {
         "django": {
             "level": "ERROR",
+        },
+        "django.security": {
+            "level": "WARNING",
+            "handlers": ["console"],
+            "propagate": False,
         },
     },
 }
