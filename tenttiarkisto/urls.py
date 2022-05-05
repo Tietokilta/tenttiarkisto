@@ -32,5 +32,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # serve uploaded exams in development mode (no-op if DEBUG=False)
-    *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
+
+    # redirect old exam URLs to Azure
+    path('media/<path:filename>', views.azure_blob_redirect),
 ]

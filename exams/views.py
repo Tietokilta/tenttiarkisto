@@ -7,6 +7,7 @@ from exams.models import Course, Exam, ExamFile, Maintainer
 from django.forms import EmailField, ModelForm, Form, PasswordInput, CharField
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, HttpResponseForbidden
+from django.core.files.storage import get_storage_class
 from datetime import datetime
 
 def frontpage(request):
@@ -203,3 +204,7 @@ def modifyaccount(request):
 def accountexams(request):
   exams = Exam.objects.filter(submitter = request.user).order_by("-date_added")
   return render(request, 'account/ownexams.html', {"exams": exams})
+
+def azure_blob_redirect(request, filename):
+  url = get_storage_class()().url(filename)
+  return HttpResponseRedirect(url)
