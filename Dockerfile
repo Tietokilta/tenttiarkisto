@@ -1,11 +1,11 @@
-FROM python:3.10-slim-bullseye AS builder
-RUN apt-get update && apt-get -y install libpq-dev build-essential
+FROM python:3.12-alpine AS builder
+RUN apk add --no-cache libpq-dev build-base
 COPY requirements.txt /opt/tenttiarkisto/
 WORKDIR /opt/tenttiarkisto
 RUN python -m venv venv && venv/bin/python -m pip install -r requirements.txt
 
-FROM python:3.10-slim-bullseye
-RUN apt-get update && apt-get -y install libpq5
+FROM python:3.12-alpine
+RUN apk add --no-cache libpq
 COPY --from=builder /opt/tenttiarkisto/venv /opt/tenttiarkisto/venv
 COPY . /opt/tenttiarkisto
 WORKDIR /opt/tenttiarkisto
