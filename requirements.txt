@@ -1,4 +1,4 @@
-django==4.2.15
+django==4.2.17
 psycopg[c]
 django-storages[azure]
 argon2-cffi
