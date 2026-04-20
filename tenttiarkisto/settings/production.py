@@ -20,7 +20,16 @@ DATABASES = {
         "PASSWORD": get_env_var("DB_PASSWORD"),
         "HOST": get_env_var("DB_HOST"),
         "PORT": environ.get("DB_PORT", ""),
-        "OPTIONS": {"sslmode": "require"},
+        "CONN_MAX_AGE": 60,
+        "CONN_HEALTH_CHECKS": True,
+        "OPTIONS": {
+            "sslmode": "require",
+            "keepalives": 1,
+            "keepalives_idle": 30,
+            "keepalives_interval": 10,
+            "keepalives_count": 5,
+            "options": "-c statement_timeout=30000 -c idle_in_transaction_session_timeout=60000",
+        },
     }
 }
 
