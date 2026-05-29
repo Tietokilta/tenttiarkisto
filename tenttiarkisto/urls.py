@@ -34,6 +34,8 @@ urlpatterns = [
     # serve uploaded exams in development mode (no-op if DEBUG=False)
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
 
+    path('api/courses/<str:course_code>/', views.api_course_exams),
+
     # redirect old exam URLs to Azure
     path('media/<path:filename>', views.azure_blob_redirect),
 ]

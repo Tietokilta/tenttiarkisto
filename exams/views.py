@@ -6,7 +6,7 @@ from django.db.models import Count, Q
 from exams.models import Course, Exam, ExamFile, Maintainer
 from django.forms import EmailField, ModelForm, Form, PasswordInput, CharField
 from django.contrib.auth.forms import UserCreationForm
-from django.http import HttpResponseRedirect, HttpResponseNotAllowed, HttpResponseForbidden
+from django.http import HttpResponseRedirect, HttpResponseNotAllowed, HttpResponseForbidden, JsonResponse
 from django.core.files.storage import get_storage_class
 from datetime import datetime
 
@@ -204,6 +204,29 @@ def modifyaccount(request):
 def accountexams(request):
   exams = Exam.objects.filter(submitter = request.user).order_by("-date_added")
   return render(request, 'account/ownexams.html', {"exams": exams})
+
+def api_course_exams(request, course_code):
+  course = get_object_or_404(Course, code__iexact=course_code)
+  exams = []
+  for exam in course.exam_set.order_by('-exam_date').all():
+    files = [
+      {'id': f.id, 'url': request.build_absolute_uri(f.exam_file.url)}
+      for f in exam.examfile_set.all()
+    ]
+    exams.append({
+      'id': exam.id,
+      'desc': exam.desc,
+      'exam_date': exam.exam_date,
+      'date_added': exam.date_added,
+      'lang': str(exam.lang),
+      'files': files,
+    })
+  return JsonResponse({
+    'id': course.id,
+    'code': course.code,
+    'name': course.name,
+    'exams': exams,
+  })
 
 def azure_blob_redirect(request, filename):
   url = get_storage_class()().url(filename)
