@@ -7,7 +7,7 @@ from exams.models import Course, Exam, ExamFile, Maintainer
 from django.forms import EmailField, ModelForm, Form, PasswordInput, CharField
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponseRedirect, HttpResponseNotAllowed, HttpResponseForbidden, JsonResponse
-from django.core.files.storage import get_storage_class
+from django.core.files.storage import default_storage
 from datetime import datetime
 
 def frontpage(request):
@@ -229,5 +229,5 @@ def api_course_exams(request, course_code):
   })
 
 def azure_blob_redirect(request, filename):
-  url = get_storage_class()().url(filename)
+  url = default_storage.url(filename)
   return HttpResponseRedirect(url)
