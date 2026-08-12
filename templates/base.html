@@ -49,7 +49,12 @@
               {% endif %}
               <li><a href="/ownexams/">Exams added by you</a></li>
               <li><a href="/account/">Account details</a></li>
-              <li><a href="/logout/">Logout</a></li>
+              <li>
+                <form method="post" action="/logout/">
+                  {% csrf_token %}
+                  <button type="submit" class="btn-link nav-logout">Logout</button>
+                </form>
+              </li>
             {% else %}
               <li class="nav-header">Login</li>
               <li><a href="/login/">Login form</a></li>
