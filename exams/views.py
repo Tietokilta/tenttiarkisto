@@ -206,7 +206,16 @@ def accountexams(request):
   return render(request, 'account/ownexams.html', {"exams": exams})
 
 def api_course_exams(request, course_code):
-  course = get_object_or_404(Course, code__iexact=course_code)
+  normalized = course_code.replace('-', '').upper()
+  courses = Course.objects.all()
+  course = None
+  for c in courses:
+    if c.code.replace('-', '').upper() == normalized:
+      course = c
+      break
+  if course is None:
+    from django.http import Http404
+    raise Http404("No Course matches the given query.")
   exams = []
   for exam in course.exam_set.order_by('-exam_date').all():
     files = [
